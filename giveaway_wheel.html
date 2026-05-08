@@ -27,7 +27,6 @@
             overflow-x: hidden;
         }
 
-        /* ===== ADMIN PANEL ===== */
         .admin-panel {
             position: fixed;
             top: 15px;
@@ -165,7 +164,6 @@
             font-weight: 600;
         }
 
-        /* ===== HEADER ===== */
         .header {
             text-align: center;
             padding: 40px 20px 20px;
@@ -247,7 +245,6 @@
             color: var(--accent);
         }
 
-        /* ===== MAIN CONTENT ===== */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -277,7 +274,6 @@
             gap: 10px;
         }
 
-        /* ===== WHEEL SECTION ===== */
         .wheel-container {
             display: flex;
             flex-direction: column;
@@ -368,7 +364,6 @@
             50% { transform: scale(1.05); }
         }
 
-        /* ===== PARTICIPANTS LIST ===== */
         .participants-list {
             max-height: 400px;
             overflow-y: auto;
@@ -462,7 +457,6 @@
             font-weight: 600;
         }
 
-        /* ===== REGISTRATION FORM ===== */
         .form-group {
             margin-bottom: 20px;
         }
@@ -560,7 +554,6 @@
             box-shadow: 0 10px 30px rgba(255,107,53,0.4);
         }
 
-        /* ===== PRIZES DISPLAY ===== */
         .prizes-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -619,7 +612,6 @@
             opacity: 0.8;
         }
 
-        /* ===== MODALS ===== */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -709,7 +701,6 @@
             transform: scale(1.05);
         }
 
-        /* ===== SPIN SETTINGS ===== */
         .settings-display {
             display: flex;
             justify-content: center;
@@ -738,7 +729,6 @@
             margin-top: 5px;
         }
 
-        /* ===== CONFETTI ===== */
         .confetti {
             position: fixed;
             pointer-events: none;
@@ -753,7 +743,6 @@
             }
         }
 
-        /* ===== ANIMATIONS ===== */
         .fade-in {
             animation: fadeIn 0.5s ease;
         }
@@ -763,17 +752,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .shake {
-            animation: shake 0.5s ease;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
-        /* ===== PARTICLES ===== */
         .particle {
             position: fixed;
             pointer-events: none;
@@ -789,7 +767,6 @@
             75% { transform: translate(20px, 10px); }
         }
 
-        /* ===== FULLSCREEN WHEEL ===== */
         .wheel-fullscreen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -822,7 +799,6 @@
             animation: fadeIn 0.5s ease;
         }
 
-        /* ===== ADMIN LOGIN ===== */
         .admin-login {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -861,6 +837,13 @@
             font-size: 1rem;
         }
 
+        .login-hint {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+
         .hidden { display: none !important; }
     </style>
 <base target="_blank">
@@ -871,9 +854,10 @@
     <div class="admin-login" id="adminLogin">
         <div class="login-box">
             <h2>🔐 เข้าสู่ระบบแอดมิน</h2>
-            <input type="password" id="adminPassword" placeholder="รหัสผ่านแอดมิน" value="powererz-admin">
-            <button class="admin-btn" onclick="loginAdmin()">เข้าสู่ระบบ</button>
-            <button class="admin-btn secondary" onclick="skipAdmin()" style="margin-top:10px;">ข้าม (โหมดผู้ใช้)</button>
+            <input type="password" id="adminPassword" placeholder="ใส่รหัสผ่านแอดมิน" value="">
+            <p class="login-hint">รหัสผ่านต้องถูกต้องเท่านั้นถึงจะเข้าสู่ระบบแอดมินได้</p>
+            <button class="admin-btn" onclick="loginAdmin()">🔑 เข้าสู่ระบบ</button>
+            <button class="admin-btn secondary" onclick="skipAdmin()" style="margin-top:10px;">👤 ข้าม (โหมดผู้ใช้ทั่วไป)</button>
         </div>
     </div>
 
@@ -1135,6 +1119,9 @@
         let currentRotation = 0;
         let followed = null;
 
+        // ===== ADMIN PASSWORD =====
+        const ADMIN_PASSWORD = 'powza080221';
+
         // ===== COLORS =====
         const wheelColors = [
             '#ff6b35', '#f7931e', '#ffcc00', '#00c853', 
@@ -1150,6 +1137,13 @@
             updateSpinSettings();
             loadSavedTheme();
 
+            // Allow Enter key to submit password
+            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginAdmin();
+                }
+            });
+
             document.getElementById('channelLogo').addEventListener('click', () => {
                 if (isAdmin) document.getElementById('logoUpload').click();
             });
@@ -1158,14 +1152,21 @@
         // ===== ADMIN LOGIN =====
         function loginAdmin() {
             const pass = document.getElementById('adminPassword').value;
-            if (pass === 'powererz-admin') {
-                isAdmin = true;
-                document.getElementById('adminLogin').classList.add('hidden');
-                document.getElementById('adminToggle').style.display = 'block';
-                document.getElementById('spinBtn').style.display = 'block';
+            if (pass === ADMIN_PASSWORD) {
+                enableAdminMode();
             } else {
-                alert('รหัสผ่านไม่ถูกต้อง!');
+                alert('❌ รหัสผ่านไม่ถูกต้อง!');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
             }
+        }
+
+        function enableAdminMode() {
+            isAdmin = true;
+            document.getElementById('adminLogin').classList.add('hidden');
+            document.getElementById('adminToggle').style.display = 'block';
+            document.getElementById('spinBtn').style.display = 'block';
+            createConfetti(50, ['#00c853', '#ffcc00']);
         }
 
         function skipAdmin() {
